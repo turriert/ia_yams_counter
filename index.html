@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎲 Yams Score</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1829;
+    --card: #221f35;
+    --border: #2e2a45;
+    --accent: #ff6b35;
+    --accent2: #ffd166;
+    --green: #06d6a0;
+    --text: #fffffe;
+    --muted: #a7a3c2;
+    --radius: 8px;
+    --gap: 4px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    padding: 6px;
+    gap: 5px;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(255,107,53,0.4);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .player-select {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 10px;
+  }
+
+  .player-select label {
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .player-select select {
+    background: transparent;
+    border: none;
+    color: var(--accent2);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .player-select select option { background: var(--surface); }
+
+  .btn-reset {
+    background: linear-gradient(135deg, var(--accent), #e85d2c);
+    border: none;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 2px 10px rgba(255,107,53,0.3);
+  }
+  .btn-reset:active { transform: scale(0.95); }
+
+  /* GRID */
+  #grid {
+    display: flex;
+    gap: var(--gap);
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* LABELS COLUMN */
+  .labels-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    flex-shrink: 0;
+    width: 72px;
+  }
+
+  .label-section {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 4px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+  }
+
+  .row-label {
+    display: flex;
+    align-items: center;
+    height: 22px;
+    color: var(--muted);
+    font-size: 9.5px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .row-label.total-label {
+    color: var(--accent2);
+    font-weight: 600;
+    font-size: 9px;
+  }
+
+  .row-label.score-label {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 10px;
+    height: 26px;
+  }
+
+  /* PLAYER COLUMNS */
+  .player-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .player-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .player-name-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    text-align: center;
+    padding: 3px 2px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+    height: 22px;
+  }
+  .player-name-input:focus { border-color: var(--accent); }
+
+  /* Rows */
+  .score-row {
+    display: flex;
+    align-items: center;
+    height: 22px;
+  }
+
+  select.score-select {
+    width: 100%;
+    height: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    text-align: center;
+    outline: none;
+    cursor: pointer;
+    padding: 0 2px;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select.score-select:focus { border-color: var(--accent2); }
+  select.score-select option { background: var(--card); }
+
+  input.score-input {
+    width: 100%;
+    height: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    text-align: center;
+    outline: none;
+    padding: 0 2px;
+  }
+  input.score-input:focus { border-color: var(--accent2); }
+
+  .total-cell {
+    width: 100%;
+    height: 22px;
+    background: rgba(255,209,102,0.1);
+    border: 1px solid rgba(255,209,102,0.3);
+    border-radius: 4px;
+    color: var(--accent2);
+    font-weight: 700;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bonus-cell {
+    width: 100%;
+    height: 22px;
+    background: rgba(6,214,160,0.08);
+    border: 1px solid rgba(6,214,160,0.2);
+    border-radius: 4px;
+    color: var(--green);
+    font-weight: 600;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .grand-total-cell {
+    width: 100%;
+    height: 26px;
+    background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,107,53,0.05));
+    border: 1px solid var(--accent);
+    border-radius: 5px;
+    color: var(--accent);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(255,107,53,0.15);
+  }
+
+  /* Responsive: reduce further for more players */
+  body[data-players="5"] .labels-col,
+  body[data-players="6"] .labels-col { width: 60px; }
+  body[data-players="5"] .labels-col .row-label,
+  body[data-players="6"] .labels-col .row-label { font-size: 8.5px; }
+  body[data-players="5"] .section-title,
+  body[data-players="6"] .section-title { font-size: 8.5px; }
+  body[data-players="5"] select.score-select,
+  body[data-players="6"] select.score-select,
+  body[data-players="5"] input.score-input,
+  body[data-players="6"] input.score-input { font-size: 9px; }
+</style>
+</head>
+<body data-players="2">
+<div id="app">
+  <header>
+    <h1>🎲 Yams</h1>
+    <div class="header-right">
+      <div class="player-select">
+        <label>Joueurs</label>
+        <select id="numPlayers" onchange="updatePlayers()">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+      <button class="btn-reset" onclick="resetAll()">⟳ Reset</button>
+    </div>
+  </header>
+
+  <div id="grid">
+    <!-- Labels column -->
+    <div class="labels-col" id="labelsCol">
+      <!-- filled by JS -->
+    </div>
+    <!-- Player columns -->
+    <div id="playerCols" style="display:flex;flex:1;gap:4px;min-width:0;overflow:hidden;">
+    </div>
+  </div>
+</div>
+
+<script>
+const ROWS = [
+  // section, key, label
+  // Section Dés
+  { s:'des', k:'d1', label:'1⃣ ×1' },
+  { s:'des', k:'d2', label:'2⃣ ×2' },
+  { s:'des', k:'d3', label:'3⃣ ×3' },
+  { s:'des', k:'d4', label:'4⃣ ×4' },
+  { s:'des', k:'d5', label:'5⃣ ×5' },
+  { s:'des', k:'d6', label:'6⃣ ×6' },
+  { s:'des', k:'subtotal', label:'Sous-total', isTotal:true },
+  { s:'des', k:'bonus', label:'Bonus +35', isBonus:true },
+  // Section Combos
+  { s:'combo', k:'brelan', label:'Brelan' },
+  { s:'combo', k:'carre', label:'Carré' },
+  { s:'combo', k:'full', label:'Full' },
+  { s:'combo', k:'ps', label:'Pt suite' },
+  { s:'combo', k:'gs', label:'Gd suite' },
+  { s:'combo', k:'chance', label:'Chance', isInput:true },
+  { s:'combo', k:'yams', label:'Yams' },
+  { s:'combo', k:'comboTotal', label:'Total combos', isTotal:true },
+  // Grand total
+  { s:'total', k:'grandTotal', label:'SCORE', isGrand:true },
+];
+
+const OPTIONS = {
+  d1: Array.from({length:6}, (_,i)=>i),
+  d2: Array.from({length:6}, (_,i)=>i*2),
+  d3: Array.from({length:6}, (_,i)=>i*3),
+  d4: Array.from({length:6}, (_,i)=>i*4),
+  d5: Array.from({length:6}, (_,i)=>i*5),
+  d6: Array.from({length:6}, (_,i)=>i*6),
+  brelan: Array.from({length:7}, (_,i)=>i*3),
+  carre: [0,40],
+  full: [0,30],
+  ps: [0,20],
+  gs: [0,30],
+  yams: [0,50],
+};
+
+let playerCount = 2;
+let state = {}; // state[p][k] = value
+
+function initState(n) {
+  state = {};
+  for(let p=0;p<n;p++){
+    state[p] = {};
+    ROWS.forEach(r=>{
+      if(!r.isTotal && !r.isBonus && !r.isGrand) state[p][r.k] = null;
+    });
+  }
+}
+
+function buildLabels() {
+  const col = document.getElementById('labelsCol');
+  col.innerHTML = '';
+
+  const sections = [
+    { title:'Dés', keys: ROWS.filter(r=>r.s==='des') },
+    { title:'Combos', keys: ROWS.filter(r=>r.s==='combo') },
+    { title:'', keys: ROWS.filter(r=>r.s==='total') },
+  ];
+
+  sections.forEach(sec => {
+    const div = document.createElement('div');
+    div.className = 'label-section';
+    if(sec.title) {
+      const t = document.createElement('div');
+      t.className = 'section-title';
+      t.textContent = sec.title;
+      div.appendChild(t);
+    }
+    sec.keys.forEach(r => {
+      const lbl = document.createElement('div');
+      lbl.className = 'row-label' + (r.isTotal||r.isBonus?' total-label':'') + (r.isGrand?' score-label':'');
+      lbl.textContent = r.label;
+      div.appendChild(lbl);
+    });
+    col.appendChild(div);
+  });
+}
+
+function buildPlayers(n) {
+  const cont = document.getElementById('playerCols');
+  cont.innerHTML = '';
+  for(let p=0;p<n;p++){
+    const col = document.createElement('div');
+    col.className = 'player-col';
+    col.id = 'pcol'+p;
+
+    // Name input (in a mini section wrapper)
+    const nameWrap = document.createElement('div');
+    nameWrap.className = 'player-section';
+    nameWrap.style.paddingTop='3px';nameWrap.style.paddingBottom='3px';
+    const ni = document.createElement('input');
+    ni.type='text'; ni.className='player-name-input';
+    ni.placeholder='Joueur '+(p+1);
+    ni.maxLength=10;
+    nameWrap.appendChild(ni);
+    col.appendChild(nameWrap);
+
+    // Dés section
+    const desSection = document.createElement('div');
+    desSection.className='player-section';
+    ROWS.filter(r=>r.s==='des').forEach(r=>{
+      const row = document.createElement('div');
+      row.className='score-row';
+      if(r.isBonus) {
+        const cell = document.createElement('div');
+        cell.className='bonus-cell';
+        cell.id='bonus'+p;
+        cell.textContent='+0';
+        row.appendChild(cell);
+      } else if(r.isTotal) {
+        const cell = document.createElement('div');
+        cell.className='total-cell';
+        cell.id='subtotal'+p;
+        cell.textContent='0';
+        row.appendChild(cell);
+      } else {
+        const sel = document.createElement('select');
+        sel.className='score-select';
+        sel.id='sel_'+p+'_'+r.k;
+        const blankOpt=document.createElement('option');
+        blankOpt.value='';blankOpt.textContent='—';
+        sel.appendChild(blankOpt);
+        OPTIONS[r.k].forEach(v=>{
+          const opt=document.createElement('option');
+          opt.value=v;opt.textContent=v;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', ()=>{ state[p][r.k]=sel.value===''?null:parseInt(sel.value); recalc(p); });
+        row.appendChild(sel);
+      }
+      desSection.appendChild(row);
+    });
+    col.appendChild(desSection);
+
+    // Combo section
+    const comboSection = document.createElement('div');
+    comboSection.className='player-section';
+    ROWS.filter(r=>r.s==='combo').forEach(r=>{
+      const row = document.createElement('div');
+      row.className='score-row';
+      if(r.isTotal) {
+        const cell = document.createElement('div');
+        cell.className='total-cell';
+        cell.id='comboTotal'+p;
+        cell.textContent='0';
+        row.appendChild(cell);
+      } else if(r.isInput) {
+        const inp = document.createElement('input');
+        inp.type='number'; inp.className='score-input'; inp.min=0; inp.max=999;
+        inp.id='inp_'+p+'_'+r.k; inp.placeholder='0';
+        inp.addEventListener('input', ()=>{ state[p][r.k]=parseInt(inp.value)||0; recalc(p); });
+        row.appendChild(inp);
+      } else {
+        const sel = document.createElement('select');
+        sel.className='score-select';
+        sel.id='sel_'+p+'_'+r.k;
+        const blankOpt2=document.createElement('option');
+        blankOpt2.value='';blankOpt2.textContent='—';
+        sel.appendChild(blankOpt2);
+        OPTIONS[r.k].forEach(v=>{
+          const opt=document.createElement('option');
+          opt.value=v;opt.textContent=v;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', ()=>{ state[p][r.k]=sel.value===''?null:parseInt(sel.value); recalc(p); });
+        row.appendChild(sel);
+      }
+      comboSection.appendChild(row);
+    });
+    col.appendChild(comboSection);
+
+    // Grand total section
+    const totalSection = document.createElement('div');
+    totalSection.className='player-section';
+    const grandRow = document.createElement('div');
+    grandRow.className='score-row';
+    const grandCell = document.createElement('div');
+    grandCell.className='grand-total-cell';
+    grandCell.id='grand'+p;
+    grandCell.textContent='0';
+    grandRow.appendChild(grandCell);
+    totalSection.appendChild(grandRow);
+    col.appendChild(totalSection);
+
+    cont.appendChild(col);
+  }
+}
+
+function recalc(p) {
+  const d = state[p];
+  const desKeys = ['d1','d2','d3','d4','d5','d6'];
+  const comboKeys = ['brelan','carre','full','ps','gs','chance','yams'];
+  const desFilled = desKeys.filter(k=>d[k]!==null);
+  const comboFilled = comboKeys.filter(k=>d[k]!==null);
+
+  const sub = desFilled.reduce((a,k)=>a+(d[k]||0), 0);
+  const bonus = sub > 62 ? 35 : 0;
+  const combo = comboFilled.reduce((a,k)=>a+(d[k]||0), 0);
+
+  const subEl = document.getElementById('subtotal'+p);
+  subEl.textContent = desFilled.length > 0 ? sub : '—';
+
+  const bCell = document.getElementById('bonus'+p);
+  if(desFilled.length === 0) {
+    bCell.textContent = '—';
+    bCell.style.color = 'var(--muted)';
+    bCell.style.borderColor = 'rgba(6,214,160,0.1)';
+  } else {
+    bCell.textContent = bonus > 0 ? '+35 ✓' : '+0';
+    bCell.style.color = bonus > 0 ? 'var(--green)' : 'var(--muted)';
+    bCell.style.borderColor = bonus > 0 ? 'rgba(6,214,160,0.5)' : 'rgba(6,214,160,0.1)';
+  }
+
+  const comboEl = document.getElementById('comboTotal'+p);
+  comboEl.textContent = comboFilled.length > 0 ? combo : '—';
+
+  const grandEl = document.getElementById('grand'+p);
+  const anyFilled = desFilled.length > 0 || comboFilled.length > 0;
+  grandEl.textContent = anyFilled ? (sub + bonus + combo) : '—';
+}
+
+function updatePlayers() {
+  playerCount = parseInt(document.getElementById('numPlayers').value);
+  document.body.setAttribute('data-players', playerCount);
+  initState(playerCount);
+  buildLabels();
+  buildPlayers(playerCount);
+}
+
+function resetAll() {
+  initState(playerCount);
+  // Reset all selects and inputs
+  for(let p=0;p<playerCount;p++){
+    ROWS.forEach(r=>{
+      if(!r.isTotal && !r.isBonus && !r.isGrand) {
+        if(r.isInput) {
+          const inp = document.getElementById('inp_'+p+'_'+r.k);
+          if(inp) { inp.value=''; }
+        } else {
+          const sel = document.getElementById('sel_'+p+'_'+r.k);
+          if(sel) sel.value='';
+        }
+      }
+    });
+    recalc(p);
+  }
+}
+
+// Init
+initState(2);
+buildLabels();
+buildPlayers(2);
+</script>
+</body>
+</html>
