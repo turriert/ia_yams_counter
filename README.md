@@ -33,4 +33,4 @@
       <li>Tu ajouteras un bouton de réinitialisation de l'ensemble des valeurs saisies et calculées.</li>
 </ol>
 <li>ASPECT GRAPHIQUE : Le design est moderne et responsif adapté au format smartphone. Le formulaire doit être entièrement visible sur un seul écran sans devoir scroller. Il faut donc adapter l'affichage pour un écran unique.</li></ol>
-<h2><a href="">ACCES A L'EXEMPLE</a></h2>
+<h2><a href="https://turriert.github.io/ia_yams_counter/">ACCES A L'EXEMPLE</a></h2>
