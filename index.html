@@ -6,6 +6,8 @@
 <title>Yams Score</title>
 <link rel="icon" type="image/png" href="img/des.png" />
 <link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#0f0e17">
+<link rel="apple-touch-icon" href="img/icon-192.png" />
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -590,6 +592,10 @@ function resetAll() {
     });
     recalc(p);
   }
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
 
 // Init
